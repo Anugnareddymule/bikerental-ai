@@ -48,17 +48,21 @@ print("="*80)
 # ============================================================================
 # LOAD ML MODELS
 # ============================================================================
-
+#
 try:
     model_path = os.path.join('models', 'xgb_day_model.pkl')
     with open(model_path, 'rb') as f:
         loaded_data = pickle.load(f)
-        if isinstance(loaded_data, dict):
-            day_model = loaded_data.get('model', loaded_data)
-            day_features = loaded_data.get('feature_names', None)
-        else:
-            day_model = loaded_data
-            day_features = None
+    if isinstance(loaded_data, dict):
+        day_model = loaded_data.get('model', loaded_data)
+        day_features = loaded_data.get('feature_names', None)
+    else:
+        day_model = loaded_data
+        day_features = None
+    try:
+        day_model.set_params(tree_method="hist")
+    except Exception:
+        pass
 
     print("✅ Day model loaded successfully!")
     if hasattr(day_model, 'feature_names_in_'):
@@ -76,6 +80,7 @@ try:
     model_path = os.path.join('models', 'xgb_hour_model.pkl')
     with open(model_path, 'rb') as f:
         loaded_data = pickle.load(f)
+
         if isinstance(loaded_data, dict):
             hour_model = loaded_data.get('model', loaded_data)
             hour_features = loaded_data.get('feature_names', None)
@@ -83,6 +88,11 @@ try:
             hour_model = loaded_data
             hour_features = None
 
+    # 🔥 FORCE CPU MODE (fix gpu_id error on Render)
+    try:
+        hour_model.set_params(tree_method="hist")
+    except Exception:
+        pass
     print("✅ Hour model loaded successfully!")
     if hasattr(hour_model, 'feature_names_in_'):
         hour_features = list(hour_model.feature_names_in_)
