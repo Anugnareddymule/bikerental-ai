@@ -44,7 +44,7 @@ import LoadingSkeleton from "./components/LoadingSkeleton";
 import { ExportButton } from "./utils/exportCSV";
 
 // API Configuration
-const API_BASE_URL = "https://bikerental-api.onrender.com";
+const API_BASE_URL = "https://bikerental-ai.onrender.com";
 
 export default function BikeRentalApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
