@@ -49,61 +49,92 @@ print("="*80)
 # LOAD ML MODELS
 # ============================================================================
 #
+# ================= DAY MODEL =================
+
+
 try:
     model_path = os.path.join('models', 'xgb_day_model.pkl')
     with open(model_path, 'rb') as f:
         loaded_data = pickle.load(f)
+
     if isinstance(loaded_data, dict):
         day_model = loaded_data.get('model', loaded_data)
-        day_features = loaded_data.get('feature_names', None)
+        day_features = loaded_data.get('feature_names')
     else:
         day_model = loaded_data
         day_features = None
+
+    # 🔥 FORCE CPU MODE & REMOVE GPU PARAMS
     try:
-        day_model.set_params(tree_method="hist")
+        params = day_model.get_params()
+        params.pop("gpu_id", None)
+        day_model.set_params(
+            **params,
+            tree_method="hist",
+            predictor="cpu_predictor"
+        )
     except Exception:
         pass
 
     print("✅ Day model loaded successfully!")
-    if hasattr(day_model, 'feature_names_in_'):
+
+    if hasattr(day_model, "feature_names_in_"):
         day_features = list(day_model.feature_names_in_)
     elif not day_features:
-        day_features = ['season', 'yr', 'mnth', 'holiday', 'weekday', 'workingday',
-                        'weathersit', 'temp', 'atemp', 'hum', 'windspeed']
-    print(f"   Features: {day_features}")
+        day_features = [
+            'season', 'yr', 'mnth', 'holiday', 'weekday',
+            'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed'
+        ]
+
+    print(f"📊 Day Features: {day_features}")
+
 except Exception as e:
     print(f"❌ Error loading day model: {e}")
     day_model = None
     day_features = None
+
 
 try:
     model_path = os.path.join('models', 'xgb_hour_model.pkl')
     with open(model_path, 'rb') as f:
         loaded_data = pickle.load(f)
 
-        if isinstance(loaded_data, dict):
-            hour_model = loaded_data.get('model', loaded_data)
-            hour_features = loaded_data.get('feature_names', None)
-        else:
-            hour_model = loaded_data
-            hour_features = None
+    if isinstance(loaded_data, dict):
+        hour_model = loaded_data.get('model', loaded_data)
+        hour_features = loaded_data.get('feature_names')
+    else:
+        hour_model = loaded_data
+        hour_features = None
 
-    # 🔥 FORCE CPU MODE (fix gpu_id error on Render)
+    # 🔥 FORCE CPU MODE & REMOVE GPU PARAMS
     try:
-        hour_model.set_params(tree_method="hist")
+        params = hour_model.get_params()
+        params.pop("gpu_id", None)
+        hour_model.set_params(
+            **params,
+            tree_method="hist",
+            predictor="cpu_predictor"
+        )
     except Exception:
         pass
+
     print("✅ Hour model loaded successfully!")
-    if hasattr(hour_model, 'feature_names_in_'):
+
+    if hasattr(hour_model, "feature_names_in_"):
         hour_features = list(hour_model.feature_names_in_)
     elif not hour_features:
-        hour_features = ['season', 'yr', 'mnth', 'hr', 'holiday', 'weekday',
-                         'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed']
-    print(f"   Features: {hour_features}")
+        hour_features = [
+            'season', 'yr', 'mnth', 'hr', 'holiday', 'weekday',
+            'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed'
+        ]
+
+    print(f"📊 Hour Features: {hour_features}")
+
 except Exception as e:
     print(f"❌ Error loading hour model: {e}")
     hour_model = None
     hour_features = None
+
 
 # ============================================================================
 # DATABASE SETUP
