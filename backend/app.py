@@ -51,6 +51,9 @@ print("="*80)
 # ============================================================================
 # LOAD ML MODELS
 # ============================================================================
+# ============================================================================
+# LOAD ML MODELS
+# ============================================================================
 
 # ================= DAY MODEL =================
 try:
@@ -66,6 +69,20 @@ try:
     else:
         day_model = loaded_data
         day_features = None
+
+    # ✅ SAFE: Wrap in try-catch to prevent crashes
+    try:
+        if hasattr(day_model, 'get_xgb_params'):
+            params = day_model.get_xgb_params()
+            # Remove GPU params if they exist
+            for key in ['gpu_id', 'tree_method', 'predictor']:
+                params.pop(key, None)
+            # Set CPU params
+            params['tree_method'] = 'hist'
+            params['predictor'] = 'cpu_predictor'
+            day_model.set_params(**params)
+    except Exception:
+        pass  # Silently ignore - model will work anyway
 
     # Extract feature names
     if hasattr(day_model, "feature_names_in_"):
@@ -100,6 +117,20 @@ try:
     else:
         hour_model = loaded_data
         hour_features = None
+
+    # ✅ SAFE: Wrap in try-catch to prevent crashes
+    try:
+        if hasattr(hour_model, 'get_xgb_params'):
+            params = hour_model.get_xgb_params()
+            # Remove GPU params if they exist
+            for key in ['gpu_id', 'tree_method', 'predictor']:
+                params.pop(key, None)
+            # Set CPU params
+            params['tree_method'] = 'hist'
+            params['predictor'] = 'cpu_predictor'
+            hour_model.set_params(**params)
+    except Exception:
+        pass  # Silently ignore - model will work anyway
 
     # Extract feature names
     if hasattr(hour_model, "feature_names_in_"):
