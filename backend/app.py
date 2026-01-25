@@ -48,38 +48,26 @@ print("="*80)
 # ============================================================================
 # LOAD ML MODELS
 # ============================================================================
-#
-# ================= DAY MODEL =================
+# ============================================================================
+# LOAD ML MODELS
+# ============================================================================
 
 # ================= DAY MODEL =================
 try:
     model_path = os.path.join('models', 'xgb_day_model.pkl')
+
+    print(f"Loading day model from: {model_path}")
     with open(model_path, 'rb') as f:
         loaded_data = pickle.load(f)
 
     if isinstance(loaded_data, dict):
-        day_model = loaded_data.get('model', loaded_data)
+        day_model = loaded_data.get('model')
         day_features = loaded_data.get('feature_names')
     else:
         day_model = loaded_data
         day_features = None
 
-    # 🔥 FORCE CPU MODE - FIXED VERSION
-    if hasattr(day_model, 'get_xgb_params'):
-        # For newer XGBoost versions
-        params = day_model.get_xgb_params()
-        params.pop("gpu_id", None)
-        params.pop("tree_method", None)
-        params.pop("predictor", None)
-        day_model.set_params(tree_method="hist",
-                             predictor="cpu_predictor", **params)
-    elif hasattr(day_model, '_Booster'):
-        # Direct booster modification
-        day_model._Booster.set_param(
-            {"predictor": "cpu_predictor", "tree_method": "hist"})
-
-    print("✅ Day model loaded successfully!")
-
+    # Extract feature names
     if hasattr(day_model, "feature_names_in_"):
         day_features = list(day_model.feature_names_in_)
     elif not day_features:
@@ -88,6 +76,7 @@ try:
             'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed'
         ]
 
+    print("✅ Day model loaded successfully!")
     print(f"📊 Day Features: {day_features}")
 
 except Exception as e:
@@ -100,32 +89,19 @@ except Exception as e:
 # ================= HOUR MODEL =================
 try:
     model_path = os.path.join('models', 'xgb_hour_model.pkl')
+
+    print(f"Loading hour model from: {model_path}")
     with open(model_path, 'rb') as f:
         loaded_data = pickle.load(f)
 
     if isinstance(loaded_data, dict):
-        hour_model = loaded_data.get('model', loaded_data)
+        hour_model = loaded_data.get('model')
         hour_features = loaded_data.get('feature_names')
     else:
         hour_model = loaded_data
         hour_features = None
 
-    # 🔥 FORCE CPU MODE - FIXED VERSION
-    if hasattr(hour_model, 'get_xgb_params'):
-        # For newer XGBoost versions
-        params = hour_model.get_xgb_params()
-        params.pop("gpu_id", None)
-        params.pop("tree_method", None)
-        params.pop("predictor", None)
-        hour_model.set_params(tree_method="hist",
-                              predictor="cpu_predictor", **params)
-    elif hasattr(hour_model, '_Booster'):
-        # Direct booster modification
-        hour_model._Booster.set_param(
-            {"predictor": "cpu_predictor", "tree_method": "hist"})
-
-    print("✅ Hour model loaded successfully!")
-
+    # Extract feature names
     if hasattr(hour_model, "feature_names_in_"):
         hour_features = list(hour_model.feature_names_in_)
     elif not hour_features:
@@ -134,6 +110,7 @@ try:
             'workingday', 'weathersit', 'temp', 'atemp', 'hum', 'windspeed'
         ]
 
+    print("✅ Hour model loaded successfully!")
     print(f"📊 Hour Features: {hour_features}")
 
 except Exception as e:
