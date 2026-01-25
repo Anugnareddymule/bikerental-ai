@@ -1961,18 +1961,18 @@ function PredictionPage({ user }) {
           </div>
         </div>
 
-        {error && (
+        {error && !prediction && (
           <div
             style={{
               padding: "15px",
-              background: "rgba(251, 191, 36, 0.2)",
-              border: "1px solid rgba(251, 191, 36, 0.3)",
+              background: "rgba(239, 68, 68, 0.2)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
               borderRadius: "8px",
               marginBottom: "15px",
-              color: "#fbbf24",
+              color: "#ef4444",
             }}
           >
-            ⚠️ {error}
+            ❌ {error}
           </div>
         )}
 
