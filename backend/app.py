@@ -51,7 +51,7 @@ print("="*80)
 #
 # ================= DAY MODEL =================
 
-
+# ================= DAY MODEL =================
 try:
     model_path = os.path.join('models', 'xgb_day_model.pkl')
     with open(model_path, 'rb') as f:
@@ -64,17 +64,19 @@ try:
         day_model = loaded_data
         day_features = None
 
-    # 🔥 FORCE CPU MODE & REMOVE GPU PARAMS
-    try:
-        params = day_model.get_params()
+    # 🔥 FORCE CPU MODE - FIXED VERSION
+    if hasattr(day_model, 'get_xgb_params'):
+        # For newer XGBoost versions
+        params = day_model.get_xgb_params()
         params.pop("gpu_id", None)
-        day_model.set_params(
-            **params,
-            tree_method="hist",
-            predictor="cpu_predictor"
-        )
-    except Exception:
-        pass
+        params.pop("tree_method", None)
+        params.pop("predictor", None)
+        day_model.set_params(tree_method="hist",
+                             predictor="cpu_predictor", **params)
+    elif hasattr(day_model, '_Booster'):
+        # Direct booster modification
+        day_model._Booster.set_param(
+            {"predictor": "cpu_predictor", "tree_method": "hist"})
 
     print("✅ Day model loaded successfully!")
 
@@ -90,10 +92,12 @@ try:
 
 except Exception as e:
     print(f"❌ Error loading day model: {e}")
+    traceback.print_exc()
     day_model = None
     day_features = None
 
 
+# ================= HOUR MODEL =================
 try:
     model_path = os.path.join('models', 'xgb_hour_model.pkl')
     with open(model_path, 'rb') as f:
@@ -106,17 +110,19 @@ try:
         hour_model = loaded_data
         hour_features = None
 
-    # 🔥 FORCE CPU MODE & REMOVE GPU PARAMS
-    try:
-        params = hour_model.get_params()
+    # 🔥 FORCE CPU MODE - FIXED VERSION
+    if hasattr(hour_model, 'get_xgb_params'):
+        # For newer XGBoost versions
+        params = hour_model.get_xgb_params()
         params.pop("gpu_id", None)
-        hour_model.set_params(
-            **params,
-            tree_method="hist",
-            predictor="cpu_predictor"
-        )
-    except Exception:
-        pass
+        params.pop("tree_method", None)
+        params.pop("predictor", None)
+        hour_model.set_params(tree_method="hist",
+                              predictor="cpu_predictor", **params)
+    elif hasattr(hour_model, '_Booster'):
+        # Direct booster modification
+        hour_model._Booster.set_param(
+            {"predictor": "cpu_predictor", "tree_method": "hist"})
 
     print("✅ Hour model loaded successfully!")
 
@@ -132,6 +138,7 @@ try:
 
 except Exception as e:
     print(f"❌ Error loading hour model: {e}")
+    traceback.print_exc()
     hour_model = None
     hour_features = None
 
